@@ -1,15 +1,19 @@
 <h1>Hello Cloudreach!</h1>
 <h4>Attempting MySQL connection from php...</h4>
 <?php
-$host = 'mysql';
+$host = 'db';
+$db = 'electroshop';
 $user = 'root';
-$pass = 'rootpassword';
-$conn = new mysqli($host, $user, $pass);
+$pass = 'root';
+//$conn = new mysqli($host, $user, $pass);
+//$conn = new PDO('mysql:host='.$host.';dbname='.$db.';charset=utf8',$user,$pass);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} else {
-    echo "Connected to MySQL successfully!";
-}
+
+	try{
+		$bdd = new PDO('mysql:host='.$host.';dbname='.$db.';charset=utf8',$user,$pass);
+	}
+	catch (Exception $e){
+		die('Erreur : ' . $e->getMessage());
+	}
 
 ?>

@@ -1,48 +1,50 @@
 version: "3.2"
 services:
   php:
-    build: 
-      context: './php/'
-      args:
-       PHP_VERSION: ${PHP_VERSION}
+    build: './php/'
     networks:
       - backend
     volumes:
-      - ${PROJECT_ROOT}/:/var/www/html/
-    container_name: php
+      - ./public_html/:/var/www/html/
+    links:
+      - db
+
   apache:
-    build:
-      context: './apache/'
-      args:
-       APACHE_VERSION: ${APACHE_VERSION}
+    build: './apache/'
     depends_on:
       - php
-      - mysql
+      - db
     networks:
       - frontend
       - backend
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      - ${PROJECT_ROOT}/:/var/www/html/
-    container_name: apache
-  mysql:
-    image: mysql:${MYSQL_VERSION:-latest}
-    restart: always
+      - ./public_html/:/var/www/html/
+    links:
+      - db:db
+
+  db:
+    image: mysql:5.6.40
+    networks:
+      - backend
     ports:
       - "3306:3306"
     volumes:
-            - data:/var/lib/mysql
+      - ./mysql/:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
+  myadmin:
+    image: phpmyadmin/phpmyadmin
     networks:
       - backend
-    environment:
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${DB_NAME}"
-      MYSQL_USER: "${DB_USERNAME}"
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-    container_name: mysql
+    ports:
+      - "8081:80"
+    links:
+      - db:db
+
 networks:
   frontend:
   backend:
-volumes:
-    data:
+
